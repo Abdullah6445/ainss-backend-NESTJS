@@ -10,6 +10,55 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  userId              Int       @id @default(autoincrement())
+  userName            String
+  userAge             Int
+  userContact         String
+  userGender          Gender
+  userEmergencyContact String
+
+  teacher   Teacher?
+  student   Student?
+}
+
+model Teacher {
+  teacherId Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [userId])
+
+  students  Student[]   // 1 Teacher → many Students
+}
+
+model Student {
+  studentId Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [userId])
+
+  teacherId Int
+  teacher   Teacher  @relation(fields: [teacherId], references: [teacherId])
+
+  attendance Attendance[]
+}
+
+model Attendance {
+  attendanceId Int      @id @default(autoincrement())
+  date         DateTime
+  status       String
+
+  studentId Int
+  student   Student @relation(fields: [studentId], references: [studentId])
+}
+
